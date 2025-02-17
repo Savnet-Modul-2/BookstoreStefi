@@ -33,14 +33,14 @@ public class EmailController {
     }
 
     @PostMapping(path = "/send-verification/{id_user}")
-    public ResponseEntity<?> sendVerificationEmail(@PathVariable(name = "id_user") Long id_user) {
-        User user = userRepository.findById(id_user).orElseThrow(() -> new EntityNotFoundException("Not found"));
+    public ResponseEntity<?> sendVerificationEmail(@PathVariable(name = "id_user") Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("Not found"));
 
         if (user.getEmail() == null || user.getEmail().isEmpty()) {
             throw new IllegalArgumentException("User with ID " + user.getId() + " does not have an email address.");
         }
 
-        String message = "\nVerification email sent to user with ID " + id_user + ".";
+        String message = "\nVerification email sent to user with ID " + userId + ".";
 
         emailService.sendVerification(user);
 
