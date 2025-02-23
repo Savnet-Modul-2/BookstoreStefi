@@ -1,68 +1,101 @@
 package com.example.BookStoreSpring.controller;
 
-import com.example.BookStoreSpring.dto.UserDTO;
 import com.example.BookStoreSpring.entities.User;
-import com.example.BookStoreSpring.exceptions.AccountNotVerifiedException;
+import com.example.BookStoreSpring.dto.UserDTO;
 import com.example.BookStoreSpring.mapper.UserMapper;
+import com.example.BookStoreSpring.repositories.UserRepository;
 import com.example.BookStoreSpring.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
-//!!! sa nu mai pun cale( pt postman) in cazurile in care este evident
-//!! sa se faca treaba cu mail ul din user - din service de la user sa se faca asta!
-// din service cand creez un user se trimite si email ul
-//cand inregistrez un user sa dau mail ul nu sa apelez un endpoint
-@RestController
-@RequestMapping("/users")
+@RestController()
+@RequestMapping(path = "/users")
 public class UserController {
-    @Autowired
+    @Autowired()
+    private UserRepository userRepository;
+    @Autowired()
     private UserService userService;
 
-    //Create user
-    @PostMapping("/create")
-    public ResponseEntity<?> create(@RequestBody UserDTO userDTO) { //val sa fie preluata din corp Json
+    @PostMapping(path = "/create-user")
+    public ResponseEntity<?> create(@RequestBody() UserDTO userDTO) {
         User user = UserMapper.userDTO2User(userDTO);
-        User userCreated = userService.create(user);
-        return ResponseEntity.ok(UserMapper.user2UserDTO(userCreated));
+        User createdUser = userService.create(user);
+
+        userService.sendVerification(createdUser);
+
+        return ResponseEntity.ok(UserMapper.user2UserDTO(createdUser));
     }
 
-    //Find all
-    @GetMapping("/findAll")
+    @GetMapping(path = "/find-user-by-id/{userID}")
+    public ResponseEntity<?> findByID(@PathVariable(name = "userID") Long userID) {
+        User user = userService.findByID(userID);
+
+        return ResponseEntity.ok(UserMapper.user2UserDTO(user));
+    }
+
+    @GetMapping(path = "/find-all-users")
     public ResponseEntity<?> findAll() {
-        List<User> userList = userService.findAll();
-        return ResponseEntity.ok(userList.stream().map(UserMapper::user2UserDTO).toList());
+        List<User> foundUsers = userService.findAll();
+        List<UserDTO> userDTOS = foundUsers.stream().map(UserMapper::user2UserDTO).toList();
+
+        return ResponseEntity.ok(userDTOS);
     }
 
-    //Find by id
-    @GetMapping("/findById/{id}")
-    public ResponseEntity<?> findById(@PathVariable Long id) { //ia valoarea din link*
-        User user = userService.findById(id);
-        return ResponseEntity.ok(UserMapper.user2UserDTO(user));
+    @PutMapping(path = "/update-user/{userID}")
+    public ResponseEntity<?> update(@PathVariable(name = "userID") Long userID, @RequestBody UserDTO userDTO) {
+        User user = userRepository.findById(userID).orElseThrow(() -> new EntityNotFoundException("Not found"));
+        User updatedUser = userService.update(user, userDTO);
+
+        return ResponseEntity.ok(UserMapper.user2UserDTO(updatedUser));
     }
 
-    //Delete by id
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteById(@PathVariable Long id) {
-        userService.deleteById(id);
-        return ResponseEntity.ok("User with id " + id + " deleted");
+    @DeleteMapping(path = "/delete-user/{userID}")
+    public ResponseEntity<?> delete(@PathVariable(name = "userID") Long userID) {
+        User user = userRepository.findById(userID).orElseThrow(() -> new EntityNotFoundException("Not found"));
+        userService.delete(user);
+
+        return ResponseEntity.ok().body("Deleted user with ID " + userID + ".");
     }
 
-    //Update by id
-    @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateById(@PathVariable Long id, @RequestBody UserDTO userDTO) {
-        User user = userService.updateById(id, userDTO);
-        return ResponseEntity.ok(UserMapper.user2UserDTO(user));
+    @PostMapping(path = "/send-email/{userID}")
+    public ResponseEntity<?> sendEmail(@PathVariable(name = "userID") Long userID, @RequestParam() String subject, @RequestParam() String text) {
+        User user = userService.checkUser(userID);
+
+        userService.send(user.getEmail(), subject, text);
+
+        return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserDTO userDTO) {
-        User user = userService.login(userDTO.getEmail(), userDTO.getPassword());
+    @PostMapping(path = "/send-verification-email/{userID}")
+    public ResponseEntity<?> sendVerificationEmail(@PathVariable(name = "userID") Long userID) {
+        User user = userService.checkUser(userID);
 
-        return ResponseEntity.ok(UserMapper.user2UserDTO(user));
+        userService.sendVerification(user);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping(path = "/verify-code")
+    public ResponseEntity<?> verifyCode(@RequestParam() Long userID, @RequestParam() String code) {
+        User user = userRepository.findById(userID).orElseThrow(() -> new EntityNotFoundException("Not found"));
+        String message = userService.verifyCode(user, code);
+
+        return ResponseEntity.ok(UserMapper.user2UserDTO(user) + message);
+    }
+
+    @PostMapping(path = "/login")
+    public ResponseEntity<?> login(@RequestParam() String emailAddress, @RequestParam() String password) {
+        User user = userRepository.findByEmail(emailAddress).orElseThrow(() -> new EntityNotFoundException("Not found"));
+        Boolean loginValidation = userService.login(user, emailAddress, password);
+
+        if (loginValidation) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.ok().body("Email sau parola gresita");
+        }
     }
 }

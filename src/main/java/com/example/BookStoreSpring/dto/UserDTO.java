@@ -1,26 +1,27 @@
 package com.example.BookStoreSpring.dto;
 
+import com.example.BookStoreSpring.Gender;
 
-import com.example.BookStoreSpring.entities.Gender;
+import java.time.LocalDate;
 
 public class UserDTO {
-    private Long Id;
+    private Long id;
     private String firstName;
     private String lastName;
-    private Integer yearOfBirth;
     private Gender gender;
+    private String country;
+    private LocalDate yearOfBirth;
     private String email;
     private String phoneNumber;
     private String password;
-    private String country;
     private Boolean verifiedAccount = false;
 
     public Long getId() {
-        return Id;
+        return id;
     }
 
     public void setId(Long id) {
-        Id = id;
+        this.id = id;
     }
 
     public String getFirstName() {
@@ -39,20 +40,28 @@ public class UserDTO {
         this.lastName = lastName;
     }
 
-    public Integer getYearOfBirth() {
-        return yearOfBirth;
-    }
-
-    public void setYearOfBirth(Integer yearOfBirth) {
-        this.yearOfBirth = yearOfBirth;
-    }
-
     public Gender getGender() {
         return gender;
     }
 
     public void setGender(Gender gender) {
         this.gender = gender;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public Integer getYearOfBirth() {
+        return yearOfBirth.getYear();
+    }
+
+    public void setYearOfBirth(Integer yearOfBirth) {
+        this.yearOfBirth = LocalDate.ofYearDay(yearOfBirth, 1);
     }
 
     public String getEmail() {
@@ -77,14 +86,6 @@ public class UserDTO {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
     }
 
     public Boolean getVerifiedAccount() {

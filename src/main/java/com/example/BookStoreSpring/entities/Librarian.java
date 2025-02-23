@@ -1,40 +1,22 @@
 package com.example.BookStoreSpring.entities;
 
-import com.example.BookStoreSpring.Gender;
 import jakarta.persistence.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Entity(name = "users")
-@Table(name = "users", schema = "public")
-public class User {
-    @Id()
+@Entity(name = "librarian")
+@Table(name = "librarians", schema = "public")
+public class Librarian {
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     private Long id;
 
     @Column
-    private String firstName;
-
-    @Column
-    private String lastName;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "GENDER")
-    private Gender gender;
-
-    @Column
-    private String country;
-
-    @Column
-    private LocalDate yearOfBirth;
+    private String name;
 
     @Column
     private String email;
-
-    @Column
-    private String phoneNumber;
 
     @Column
     private String password;
@@ -51,6 +33,10 @@ public class User {
     @Column
     private Boolean loggedIn = false;
 
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "LIBRARY_ID", referencedColumnName = "ID")
+    private Library library;
+
     public Long getId() {
         return id;
     }
@@ -59,44 +45,12 @@ public class User {
         this.id = id;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public String getName() {
+        return name;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public Gender getGender() {
-        return gender;
-    }
-
-    public void setGender(Gender gender) {
-        this.gender = gender;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
-    public Integer getYearOfBirth() {
-        return yearOfBirth.getYear();
-    }
-
-    public void setYearOfBirth(Integer yearOfBirth) {
-        this.yearOfBirth = LocalDate.ofYearDay(yearOfBirth, 1);
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getEmail() {
@@ -105,14 +59,6 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
     }
 
     public String getPassword() {
@@ -131,14 +77,6 @@ public class User {
         this.verifiedAccount = verifiedAccount;
     }
 
-    public Boolean getLoggedIn() {
-        return loggedIn;
-    }
-
-    public void setLoggedIn(Boolean loggedIn) {
-        this.loggedIn = loggedIn;
-    }
-
     public String getVerificationCode() {
         return verificationCode;
     }
@@ -153,5 +91,21 @@ public class User {
 
     public void setVerificationCodeGenerationTime(LocalDateTime verificationCodeGenerationTime) {
         this.verificationCodeGenerationTime = verificationCodeGenerationTime;
+    }
+
+    public Boolean getLoggedIn() {
+        return loggedIn;
+    }
+
+    public void setLoggedIn(Boolean loggedIn) {
+        this.loggedIn = loggedIn;
+    }
+
+    public Library getLibrary() {
+        return library;
+    }
+
+    public void setLibrary(Library library) {
+        this.library = library;
     }
 }
