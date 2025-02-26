@@ -16,8 +16,13 @@ import java.util.List;
 @RestController()
 @RequestMapping(path = "/books")
 public class BookController {
-    @Autowired()
-    private BookService bookService;
+    private final BookService bookService;
+
+    @Autowired
+    public BookController(BookService bookService) {
+        this.bookService = bookService;
+    }
+
     @Autowired()
     private LibraryService libraryService;
 
@@ -39,7 +44,9 @@ public class BookController {
     @GetMapping(path = "/list-all-books")
     public ResponseEntity<?> listAll() {
         List<Book> books = bookService.listAll();
-        List<BookDTO> bookDTO = books.stream().map(BookMapper::book2BookDTO).toList();
+        List<BookDTO> bookDTO = books.stream()
+                .map(BookMapper::book2BookDTO)
+                .toList();
 
         return ResponseEntity.ok(bookDTO);
     }
@@ -47,7 +54,9 @@ public class BookController {
     @GetMapping(path = "/list-books-paginated")
     public ResponseEntity<?> listPaginated(@RequestParam() Integer page, @RequestParam() Integer numberOfElements) {
         Page<Book> books = bookService.listPaginated(page, numberOfElements);
-        List<BookDTO> bookDTO = books.stream().map(BookMapper::book2BookDTO).toList();
+        List<BookDTO> bookDTO = books.stream()
+                .map(BookMapper::book2BookDTO)
+                .toList();
 
         return ResponseEntity.ok(bookDTO);
     }

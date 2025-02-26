@@ -4,6 +4,7 @@ import com.example.BookStoreSpring.Category;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity(name = "book")
 @Table(name = "books", schema = "public")
@@ -34,6 +35,8 @@ public class Book {
 
     @Column(name = "RELEASE_DATE")
     private LocalDate releaseDate;
+    @OneToMany
+    private List<Exemplary>exemplaries;
 
     @ManyToOne()
     @JoinColumn(name = "LIBRARY_ID")
