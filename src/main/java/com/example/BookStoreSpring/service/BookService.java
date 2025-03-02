@@ -2,7 +2,7 @@ package com.example.BookStoreSpring.service;
 
 import com.example.BookStoreSpring.entities.Book;
 import com.example.BookStoreSpring.entities.Library;
-import com.example.BookStoreSpring.dto.BookDTO;
+import com.example.BookStoreSpring.entitiesDTO.BookDTO;
 import com.example.BookStoreSpring.mapper.LibraryMapper;
 import com.example.BookStoreSpring.repositories.BookRepository;
 import com.example.BookStoreSpring.repositories.LibraryRepository;
@@ -15,19 +15,30 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service()
+@Service
 public class BookService {
-    @Autowired()
-    private BookRepository bookRepository;
-    @Autowired()
-    private LibraryRepository libraryRepository;
+    private final BookRepository bookRepository;
+    private final LibraryRepository libraryRepository;
+    private final LibraryService libraryService;
+
+    @Autowired
+    public BookService(BookRepository bookRepository, LibraryRepository libraryRepository, LibraryService libraryService) {
+        this.bookRepository = bookRepository;
+        this.libraryRepository = libraryRepository;
+        this.libraryService = libraryService;
+    }
 
     public Book create(Book book) {
+        if (book.getID() != null) {
+            throw new RuntimeException("Cannot provide an ID when creating a new book.");
+        }
+
         return bookRepository.save(book);
     }
 
     public Book findByID(Long bookID) {
-        return bookRepository.findById(bookID).orElseThrow(() -> new EntityNotFoundException("Book with ID " + bookID + " not found."));
+        return bookRepository.findById(bookID)
+                .orElseThrow(() -> new EntityNotFoundException("Book with ID " + bookID + " not found."));
     }
 
     public List<Book> listAll() {
@@ -35,12 +46,18 @@ public class BookService {
     }
 
     public Page<Book> listPaginated(Integer pageNumber, Integer numberOfElements) {
-        Pageable pageable = PageRequest.of(pageNumber, numberOfElements);
-        return bookRepository.findAll(pageable);
+        if (pageNumber != null && numberOfElements != null) {
+            Pageable pageable = PageRequest.of(pageNumber, numberOfElements);
+            return bookRepository.findAll(pageable);
+        }
+
+        return bookRepository.findAll(Pageable.unpaged());
     }
 
-    public Book update(Book bookToUpdate, BookDTO bookUpdate) {
-        bookToUpdate.setIsbn(bookUpdate.getIsbn());
+    public Book update(Long bookID, BookDTO bookUpdate) {
+        Book bookToUpdate = findByID(bookID);
+
+        bookToUpdate.setISBN(bookUpdate.getISBN());
         bookToUpdate.setTitle(bookUpdate.getTitle());
         bookToUpdate.setAuthor(bookUpdate.getAuthor());
         bookToUpdate.setReleaseDate(bookUpdate.getReleaseDate());
@@ -55,13 +72,21 @@ public class BookService {
         return bookRepository.save(bookToUpdate);
     }
 
-    public void addBook(Book book, Library library) {
-        library.addBook(book);
-        libraryRepository.save(library);
+    public void addBook(Long bookID, Long libraryID) {
+        Book bookToAdd = findByID(bookID);
+        Library libraryToReceive = libraryService.findByID(libraryID);
+
+        libraryToReceive.addBook(bookToAdd);
+
+        libraryRepository.save(libraryToReceive);
     }
 
-    public void removeBook(Book book, Library library) {
-        library.removeBook(book);
-        libraryRepository.save(library);
+    public void removeBook(Long bookID, Long libraryID) {
+        Book bookToRemove = findByID(bookID);
+        Library libraryToDiscard = libraryService.findByID(libraryID);
+
+        libraryToDiscard.removeBook(bookToRemove);
+
+        libraryRepository.save(libraryToDiscard);
     }
 }

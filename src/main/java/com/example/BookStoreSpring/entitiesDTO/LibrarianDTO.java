@@ -1,4 +1,4 @@
-package com.example.BookStoreSpring.dto;
+package com.example.BookStoreSpring.entitiesDTO;
 
 public class LibrarianDTO {
     private Long id;
@@ -6,14 +6,13 @@ public class LibrarianDTO {
     private String emailAddress;
     private String password;
     private Boolean verifiedAccount = false;
-    private Boolean loggedIn = false;
     private LibraryDTO libraryDTO;
 
-    public Long getId() {
+    public Long getID() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setID(Long id) {
         this.id = id;
     }
 
@@ -49,20 +48,12 @@ public class LibrarianDTO {
         this.verifiedAccount = verifiedAccount;
     }
 
-    public Boolean getLoggedIn() {
-        return loggedIn;
-    }
-
-    public void setLoggedIn(Boolean loggedIn) {
-        this.loggedIn = loggedIn;
-    }
-
     public LibraryDTO getLibraryDTO() {
         return libraryDTO;
     }
 
     public void setLibraryDTO(LibraryDTO libraryDTO) {
-        this.libraryDTO = libraryDTO; //ii dau si un librarian
+        this.libraryDTO = libraryDTO;
         libraryDTO.setLibrarianDTO(this);
     }
 }

@@ -1,7 +1,7 @@
 package com.example.BookStoreSpring.mapper;
 
 import com.example.BookStoreSpring.entities.User;
-import com.example.BookStoreSpring.dto.UserDTO;
+import com.example.BookStoreSpring.entitiesDTO.UserDTO;
 
 public class UserMapper {
     public static User userDTO2User(UserDTO userDTO) {
@@ -11,9 +11,9 @@ public class UserMapper {
         user.setLastName(userDTO.getLastName());
         user.setGender(userDTO.getGender());
         user.setCountry(userDTO.getCountry());
-        user.setYearOfBirth(userDTO.getYearOfBirth());
-        user.setEmail(userDTO.getEmail());
+        user.setBirthDate(userDTO.getBirthDate());
         user.setPhoneNumber(userDTO.getPhoneNumber());
+        user.setEmail(userDTO.getEmail());
         user.setPassword(userDTO.getPassword());
         user.setVerifiedAccount(userDTO.getVerifiedAccount());
 
@@ -23,14 +23,14 @@ public class UserMapper {
     public static UserDTO user2UserDTO(User user) {
         UserDTO userDTO = new UserDTO();
 
-        userDTO.setId(user.getId());
+        userDTO.setID(user.getID());
         userDTO.setFirstName(user.getFirstName());
         userDTO.setLastName(user.getLastName());
         userDTO.setGender(user.getGender());
         userDTO.setCountry(user.getCountry());
-        userDTO.setYearOfBirth(user.getYearOfBirth());
-        userDTO.setEmail(user.getEmail());
+        userDTO.setBirthDate(user.getBirthDate());
         userDTO.setPhoneNumber(user.getPhoneNumber());
+        userDTO.setEmail(user.getEmail());
         userDTO.setPassword(user.getPassword());
         userDTO.setVerifiedAccount(user.getVerifiedAccount());
 

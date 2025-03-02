@@ -9,39 +9,36 @@ import java.time.LocalDateTime;
 public class Librarian {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column
+    @Column(name = "ID")
     private Long id;
 
-    @Column
+    @Column(name = "NAME")
     private String name;
 
-    @Column
+    @Column(name = "EMAIL")
     private String email;
 
-    @Column
+    @Column(name = "PASSWORD")
     private String password;
 
-    @Column
+    @Column(name = "VERIFIED_ACCOUNT")
     private Boolean verifiedAccount = false;
 
-    @Column
+    @Column(name = "VERIFICATION_CODE")
     private String verificationCode;
 
-    @Column
+    @Column(name = "VERIFICATION_CODE_GENERATION_TIME")
     private LocalDateTime verificationCodeGenerationTime;
-
-    @Column
-    private Boolean loggedIn = false;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "LIBRARY_ID", referencedColumnName = "ID")
     private Library library;
 
-    public Long getId() {
+    public Long getID() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setID(Long id) {
         this.id = id;
     }
 
@@ -91,14 +88,6 @@ public class Librarian {
 
     public void setVerificationCodeGenerationTime(LocalDateTime verificationCodeGenerationTime) {
         this.verificationCodeGenerationTime = verificationCodeGenerationTime;
-    }
-
-    public Boolean getLoggedIn() {
-        return loggedIn;
-    }
-
-    public void setLoggedIn(Boolean loggedIn) {
-        this.loggedIn = loggedIn;
     }
 
     public Library getLibrary() {

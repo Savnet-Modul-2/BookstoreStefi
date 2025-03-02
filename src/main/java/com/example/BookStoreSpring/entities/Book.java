@@ -1,9 +1,10 @@
 package com.example.BookStoreSpring.entities;
 
-import com.example.BookStoreSpring.Category;
+import com.example.BookStoreSpring.BookCategory;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity(name = "book")
@@ -11,50 +12,51 @@ import java.util.List;
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column
+    @Column(name = "ID")
     private Long id;
 
-    @Column
+    @Column(name = "ISBN")
     private Long isbn;
 
-    @Column
+    @Column(name = "TITLE")
     private String title;
 
-    @Column
+    @Column(name = "AUTHOR")
     private String author;
 
     @Enumerated(EnumType.STRING)
-    @Column
-    private Category category;
+    @Column(name = "CATEGORY")
+    private BookCategory bookCategory;
 
-    @Column
+    @Column(name = "LANGUAGE")
     private String language;
 
-    @Column
+    @Column(name = "NUMBER_OF_PAGES")
     private Integer numberOfPages;
 
     @Column(name = "RELEASE_DATE")
     private LocalDate releaseDate;
-    @OneToMany
-    private List<Exemplary>exemplaries;
 
-    @ManyToOne()
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Exemplary> exemplars = new ArrayList<>();
+
+    @ManyToOne
     @JoinColumn(name = "LIBRARY_ID")
     private Library library;
 
-    public Long getId() {
+    public Long getID() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setID(Long id) {
         this.id = id;
     }
 
-    public Long getIsbn() {
+    public Long getISBN() {
         return isbn;
     }
 
-    public void setIsbn(Long isbn) {
+    public void setISBN(Long isbn) {
         this.isbn = isbn;
     }
 
@@ -74,12 +76,12 @@ public class Book {
         this.author = author;
     }
 
-    public Category getCategory() {
-        return category;
+    public BookCategory getCategory() {
+        return bookCategory;
     }
 
-    public void setCategory(Category category) {
-        this.category = category;
+    public void setCategory(BookCategory bookCategory) {
+        this.bookCategory = bookCategory;
     }
 
     public String getLanguage() {
@@ -106,11 +108,33 @@ public class Book {
         this.releaseDate = LocalDate.ofYearDay(releaseDate, 1);
     }
 
+    public List<Exemplary> getExemplars() {
+        return exemplars;
+    }
+
+    public void setExemplars(List<Exemplary> exemplars) {
+        this.exemplars = exemplars;
+    }
+
     public Library getLibrary() {
         return library;
     }
 
     public void setLibrary(Library library) {
         this.library = library;
+    }
+
+    public void addExemplary(Exemplary exemplary) {
+        if (!exemplars.contains(exemplary)) {
+            exemplars.add(exemplary);
+            exemplary.setBook(this);
+        }
+    }
+
+    public void removeExemplary(Exemplary exemplary) {
+        if (exemplars.contains(exemplary)) {
+            exemplars.remove(exemplary);
+            exemplary.setBook(null);
+        }
     }
 }

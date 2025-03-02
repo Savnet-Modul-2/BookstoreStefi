@@ -10,16 +10,16 @@ import java.util.List;
 public class Library {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column
+    @Column(name = "ID")
     private Long id;
 
-    @Column
+    @Column(name = "NAME")
     private String name;
 
-    @Column
+    @Column(name = "ADDRESS")
     private String address;
 
-    @Column
+    @Column(name = "PHONENUMBER")
     private String phoneNumber;
 
     @OneToOne(mappedBy = "library")
@@ -28,11 +28,11 @@ public class Library {
     @OneToMany(mappedBy = "library", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Book> books = new ArrayList<>();
 
-    public Long getId() {
+    public Long getID() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setID(Long id) {
         this.id = id;
     }
 
@@ -77,14 +77,16 @@ public class Library {
     }
 
     public void addBook(Book book) {
-        books.add(book);
-        book.setLibrary(this);//ii dau id ul
+        if (!books.contains(book)) {
+            books.add(book);
+            book.setLibrary(this);
+        }
     }
 
     public void removeBook(Book book) {
         if (books.contains(book)) {
             books.remove(book);
-            book.setLibrary(null);//il sterg din bilbioteca dar si din tabel
+            book.setLibrary(null);
         }
     }
 }

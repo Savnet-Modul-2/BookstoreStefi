@@ -7,22 +7,27 @@ import jakarta.persistence.*;
 public class Exemplary {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column
+    @Column(name = "ID")
     private Long id;
-    @Column
+
+    @Column(name = "PUBLISHER")
     private String publisher;
-    @Column
+
+    @Column(name = "MAXIMUM_BOOKING_TIME")
     private Integer maximumBookingTime;
-    @ManyToOne (cascade = CascadeType.ALL)
+
+    @ManyToOne
     @JoinColumn(name = "BOOK_ID")
     private Book book;
 
+    @OneToOne
+    private Reservation reservation;
 
-    public Long getId() {
+    public Long getID() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setID(Long id) {
         this.id = id;
     }
 
@@ -50,4 +55,11 @@ public class Exemplary {
         this.book = book;
     }
 
+    public Reservation getReservation() {
+        return reservation;
+    }
+
+    public void setReservation(Reservation reservation) {
+        this.reservation = reservation;
+    }
 }

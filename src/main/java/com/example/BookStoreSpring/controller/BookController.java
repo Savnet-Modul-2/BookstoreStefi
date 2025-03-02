@@ -1,11 +1,9 @@
 package com.example.BookStoreSpring.controller;
 
 import com.example.BookStoreSpring.entities.Book;
-import com.example.BookStoreSpring.entities.Library;
-import com.example.BookStoreSpring.dto.BookDTO;
+import com.example.BookStoreSpring.entitiesDTO.BookDTO;
 import com.example.BookStoreSpring.mapper.BookMapper;
 import com.example.BookStoreSpring.service.BookService;
-import com.example.BookStoreSpring.service.LibraryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController()
+@RestController
 @RequestMapping(path = "/books")
 public class BookController {
     private final BookService bookService;
@@ -23,69 +21,53 @@ public class BookController {
         this.bookService = bookService;
     }
 
-    @Autowired()
-    private LibraryService libraryService;
-
-    @PostMapping(path = "/create-book")
+    @PostMapping
     public ResponseEntity<?> create(@RequestBody BookDTO bookDTO) {
-        Book newBook = BookMapper.bookDTO2Book(bookDTO);
-        Book book = bookService.create(newBook);
+        Book bookToCreate = BookMapper.bookDTO2Book(bookDTO);
+        Book createdBook = bookService.create(bookToCreate);
 
-        return ResponseEntity.ok(BookMapper.book2BookDTO(book));
+        return ResponseEntity.ok(BookMapper.book2BookDTO(createdBook));
     }
 
-    @GetMapping(path = "/find-book/{bookID}")
+    @GetMapping(path = "/{bookID}")
     public ResponseEntity<?> findByID(@PathVariable(name = "bookID") Long bookID) {
-        Book book = bookService.findByID(bookID);
-
-        return ResponseEntity.ok(BookMapper.book2BookDTO(book));
+        Book foundBook = bookService.findByID(bookID);
+        return ResponseEntity.ok(BookMapper.book2BookDTO(foundBook));
     }
 
-    @GetMapping(path = "/list-all-books")
+    @GetMapping
     public ResponseEntity<?> listAll() {
         List<Book> books = bookService.listAll();
-        List<BookDTO> bookDTO = books.stream()
-                .map(BookMapper::book2BookDTO)
-                .toList();
 
-        return ResponseEntity.ok(bookDTO);
+        return ResponseEntity.ok(books.stream()
+                .map(BookMapper::book2BookDTO)
+                .toList());
     }
 
-    @GetMapping(path = "/list-books-paginated")
-    public ResponseEntity<?> listPaginated(@RequestParam() Integer page, @RequestParam() Integer numberOfElements) {
-        Page<Book> books = bookService.listPaginated(page, numberOfElements);
-        List<BookDTO> bookDTO = books.stream()
-                .map(BookMapper::book2BookDTO)
-                .toList();
+    @GetMapping(path = "/paginated")
+    public ResponseEntity<?> listPaginated(@RequestParam(required = false) Integer pageNumber, @RequestParam(required = false) Integer numberOfElements) {
+        Page<Book> books = bookService.listPaginated(pageNumber, numberOfElements);
 
-        return ResponseEntity.ok(bookDTO);
+        return ResponseEntity.ok(books.stream()
+                .map(BookMapper::book2BookDTO)
+                .toList());
     }
 
-    @PutMapping(path = "/update-book/{bookID}")
-    public ResponseEntity<?> update(@PathVariable(name = "bookID") Long bookID, @RequestBody() BookDTO bookDTO) {
-        Book book = bookService.findByID(bookID);
-        Book updatedBook = bookService.update(book, bookDTO);
-
+    @PutMapping(path = "/{bookID}")
+    public ResponseEntity<?> update(@PathVariable(name = "bookID") Long bookID, @RequestBody BookDTO bookDTO) {
+        Book updatedBook = bookService.update(bookID, bookDTO);
         return ResponseEntity.ok((BookMapper.book2BookDTO(updatedBook)));
     }
 
-    @PutMapping(path = "/add/{bookID}/to/{libraryID}")
+    @PutMapping(path = "/{bookID}/{libraryID}")
     public ResponseEntity<?> addBook(@PathVariable(name = "bookID") Long bookID, @PathVariable(name = "libraryID") Long libraryID) {
-        Book book = bookService.findByID(bookID);
-        Library libraryToReceive = libraryService.findByID(libraryID);
-
-        bookService.addBook(book, libraryToReceive);
-
+        bookService.addBook(bookID, libraryID);
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping(path = "/remove/{bookID}/from/{libraryID}")
+    @DeleteMapping(path = "/{bookID}/{libraryID}")
     public ResponseEntity<?> removeBook(@PathVariable(name = "bookID") Long bookID, @PathVariable(name = "libraryID") Long libraryID) {
-        Book book = bookService.findByID(bookID);
-        Library libraryToDiscard = libraryService.findByID(libraryID);
-
-        bookService.removeBook(book, libraryToDiscard);
-
+        bookService.removeBook(bookID, libraryID);
         return ResponseEntity.noContent().build();
     }
 }

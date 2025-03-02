@@ -1,10 +1,6 @@
 package com.example.BookStoreSpring;
 
-public enum Category {
-    POETRY,
-    SF,
-    LOVE,
-    POLITICS,
+public enum BookCategory {
     ACTION,
     ADVENTURE,
     THRILLER,

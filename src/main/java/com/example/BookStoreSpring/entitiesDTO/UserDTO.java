@@ -1,4 +1,4 @@
-package com.example.BookStoreSpring.dto;
+package com.example.BookStoreSpring.entitiesDTO;
 
 import com.example.BookStoreSpring.Gender;
 
@@ -10,17 +10,17 @@ public class UserDTO {
     private String lastName;
     private Gender gender;
     private String country;
-    private LocalDate yearOfBirth;
-    private String email;
+    private LocalDate birthDate;
     private String phoneNumber;
+    private String email;
     private String password;
     private Boolean verifiedAccount = false;
 
-    public Long getId() {
+    public Long getID() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setID(Long id) {
         this.id = id;
     }
 
@@ -56,20 +56,12 @@ public class UserDTO {
         this.country = country;
     }
 
-    public Integer getYearOfBirth() {
-        return yearOfBirth.getYear();
+    public LocalDate getBirthDate() {
+        return birthDate;
     }
 
-    public void setYearOfBirth(Integer yearOfBirth) {
-        this.yearOfBirth = LocalDate.ofYearDay(yearOfBirth, 1);
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
+    public void setBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
     }
 
     public String getPhoneNumber() {
@@ -78,6 +70,14 @@ public class UserDTO {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getPassword() {

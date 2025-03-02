@@ -6,8 +6,6 @@ import com.example.BookStoreSpring.repositories.LibrarianRepository;
 import com.example.BookStoreSpring.repositories.LibraryRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,22 +14,27 @@ import org.springframework.util.DigestUtils;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Random;
+import java.util.InputMismatchException;
+import java.util.List;
 
-@Service()
-public class LibrarianService {
-    @Autowired()
-    private LibrarianRepository librarianRepository;
-    @Autowired()
-    private LibraryRepository libraryRepository;
-    @Autowired()
-    private JavaMailSender javaMailSender;
+@Service
+public class LibrarianService extends EmailService {
+    private final LibrarianRepository librarianRepository;
+    private final LibraryRepository libraryRepository;
 
-    @Value("${spring.mail.username}")
-    private String sender;
+    @Autowired
+    public LibrarianService(JavaMailSender javaMailSender, LibrarianRepository librarianRepository, LibraryRepository libraryRepository) {
+        super(javaMailSender);
+        this.librarianRepository = librarianRepository;
+        this.libraryRepository = libraryRepository;
+    }
 
-    @Transactional()
+    @Transactional
     public Librarian create(Librarian librarianToCreate) {
+        if (librarianToCreate.getID() != null) {
+            throw new RuntimeException("Cannot provide an ID when creating a new librarian.");
+        }
+
         librarianToCreate.setPassword(DigestUtils.md5DigestAsHex(librarianToCreate.getPassword().getBytes(StandardCharsets.UTF_8)));
 
         Library library = new Library();
@@ -41,7 +44,7 @@ public class LibrarianService {
         library.setPhoneNumber(librarianToCreate.getLibrary().getPhoneNumber());
         library.setLibrarian(librarianToCreate);
 
-        if (librarianToCreate.getLibrary().getBooks() != null && !librarianToCreate.getLibrary().getBooks().isEmpty()) {
+        if (librarianToCreate.getLibrary().getBooks() != null) {
             library.setBooks(librarianToCreate.getLibrary().getBooks());
         }
 
@@ -52,8 +55,24 @@ public class LibrarianService {
         return librarianRepository.save(librarianToCreate);
     }
 
-    public Librarian checkLibrarian(Long librarianID) {
-        Librarian librarian = librarianRepository.findById(librarianID).orElseThrow(() -> new EntityNotFoundException("Librarian with ID " + librarianID + " not found."));
+    public Librarian findByID(Long librarianID) {
+        return librarianRepository.findById(librarianID)
+                .orElseThrow(() -> new EntityNotFoundException("Librarian with ID " + librarianID + " not found."));
+    }
+
+    public List<Librarian> findAll() {
+        return librarianRepository.findAll();
+    }
+
+    public void delete(Long librarianID) {
+        if (librarianRepository.existsById(librarianID)) {
+            librarianRepository.deleteById(librarianID);
+        }
+    }
+
+    public Librarian checkEmail(Long librarianID) {
+        Librarian librarian = librarianRepository.findById(librarianID)
+                .orElseThrow(() -> new EntityNotFoundException("Librarian with ID " + librarianID + " not found."));
 
         if (librarian.getEmail() == null || librarian.getEmail().isEmpty()) {
             throw new IllegalArgumentException("Librarian with ID " + librarianID + " does not have an email address.");
@@ -62,33 +81,20 @@ public class LibrarianService {
         return librarian;
     }
 
-    public void send(String emailAddress, String subject, String text) {
-        SimpleMailMessage email = new SimpleMailMessage();
-
-        email.setFrom(sender);
-        email.setTo(emailAddress);
-        email.setSubject(subject);
-        email.setText(text);
-
-        javaMailSender.send(email);
-    }
-
-    public String generateVerificationCode() {
-        Random random = new Random();
-        return String.valueOf(random.nextInt(100000, 999999));
-    }
-
     public void sendVerificationCode(Librarian librarian) {
         if (!librarian.getVerifiedAccount()) {
             librarian.setVerificationCode(generateVerificationCode());
             librarian.setVerificationCodeGenerationTime(LocalDateTime.now());
+
             librarianRepository.save(librarian);
 
-            send(librarian.getEmail(), "Librarian Verification Email", "Your verification code is: " + librarian.getVerificationCode() + ".\nThis verification code will expire in 5 minutes.");
+            sendEmail(librarian.getEmail(), "Librarian Verification Email", "Your verification code is: " + librarian.getVerificationCode() + ".\nThis verification code will expire in 5 minutes.");
         }
     }
 
-    public String checkVerificationCode(Librarian librarian, String code) {
+    public Librarian checkVerificationCode(Long librarianID, String code) {
+        Librarian librarian = findByID(librarianID);
+
         LocalDateTime currentTime = LocalDateTime.now();
         Duration elapsedTime = Duration.between(librarian.getVerificationCodeGenerationTime(), currentTime);
 
@@ -97,29 +103,32 @@ public class LibrarianService {
 
             librarianRepository.save(librarian);
 
-            return "\nVerification code expired. Request a new verification code.";
+            throw new RuntimeException("Verification code expired. Request a new verification code.");
         } else if (!librarian.getVerificationCode().equals(code)) {
-            return "\nLibrarian account verification unsuccessful. Invalid code provided.";
-        } else {
-            librarian.setVerifiedAccount(true);
-            librarian.setVerificationCode(null);
-            librarian.setVerificationCodeGenerationTime(null);
-
-            librarianRepository.save(librarian);
-
-            return "\nLibrarian account verification successful.";
+            throw new RuntimeException("Librarian account verification unsuccessful. Invalid code provided.");
         }
-    }
 
-    public Boolean login(Librarian librarian, String emailAddress, String password) {
-        String encryptedPassword = DigestUtils.md5DigestAsHex(password.getBytes(StandardCharsets.UTF_8));
+        librarian.setVerifiedAccount(true);
+        librarian.setVerificationCode(null);
+        librarian.setVerificationCodeGenerationTime(null);
 
-        if (!librarian.getEmail().equals(emailAddress) || !librarian.getPassword().equals(encryptedPassword))
-            return false;
-
-        librarian.setLoggedIn(true);
         librarianRepository.save(librarian);
 
-        return true;
+        return librarian;
+    }
+
+    public Librarian login(String emailAddress, String password) {
+        Librarian librarian = librarianRepository.findByEmail(emailAddress)
+                .orElseThrow(() -> new EntityNotFoundException("Librarian with email address " + emailAddress + " not found."));
+
+        String encryptedPassword = DigestUtils.md5DigestAsHex(password.getBytes(StandardCharsets.UTF_8));
+
+        if (!librarian.getEmail().equals(emailAddress) || !librarian.getPassword().equals(encryptedPassword)) {
+            throw new InputMismatchException("Login unsuccessful. Invalid email address or password.");
+        }
+
+        librarianRepository.save(librarian);
+
+        return librarian;
     }
 }

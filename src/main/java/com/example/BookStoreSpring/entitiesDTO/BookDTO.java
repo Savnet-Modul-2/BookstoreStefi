@@ -1,6 +1,6 @@
-package com.example.BookStoreSpring.dto;
+package com.example.BookStoreSpring.entitiesDTO;
 
-import com.example.BookStoreSpring.Category;
+import com.example.BookStoreSpring.BookCategory;
 
 import java.time.LocalDate;
 
@@ -9,25 +9,25 @@ public class BookDTO {
     private Long isbn;
     private String title;
     private String author;
-    private Category category;
+    private BookCategory bookCategory;
     private String language;
     private Integer numberOfPages;
     private LocalDate releaseDate;
     private LibraryDTO libraryDTO;
 
-    public Long getId() {
+    public Long getID() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setID(Long id) {
         this.id = id;
     }
 
-    public Long getIsbn() {
+    public Long getISBN() {
         return isbn;
     }
 
-    public void setIsbn(Long isbn) {
+    public void setISBN(Long isbn) {
         this.isbn = isbn;
     }
 
@@ -47,12 +47,12 @@ public class BookDTO {
         this.author = author;
     }
 
-    public Category getCategory() {
-        return category;
+    public BookCategory getCategory() {
+        return bookCategory;
     }
 
-    public void setCategory(Category category) {
-        this.category = category;
+    public void setCategory(BookCategory bookCategory) {
+        this.bookCategory = bookCategory;
     }
 
     public String getLanguage() {

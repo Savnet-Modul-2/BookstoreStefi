@@ -1,13 +1,8 @@
 package com.example.BookStoreSpring.mapper;
 
-import com.example.BookStoreSpring.dto.BookDTO;
-import com.example.BookStoreSpring.dto.ExemplarsCreateDTO;
-import com.example.BookStoreSpring.dto.ExemplaryDTO;
-import com.example.BookStoreSpring.entities.Book;
 import com.example.BookStoreSpring.entities.Exemplary;
-import com.example.BookStoreSpring.repositories.BookRepository;
-import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.BookStoreSpring.entitiesDTO.ExemplarsCreateDTO;
+import com.example.BookStoreSpring.entitiesDTO.ExemplaryDTO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +11,7 @@ public class ExemplaryMapper {
     public static ExemplaryDTO exemplary2ExemplaryDTO(Exemplary exemplary) {
         ExemplaryDTO exemplaryDTO = new ExemplaryDTO();
 
-        exemplaryDTO.setId(exemplary.getId());
+        exemplaryDTO.setID(exemplary.getID());
         exemplaryDTO.setPublisher(exemplary.getPublisher());
         exemplaryDTO.setMaximumBookingTime(exemplary.getMaximumBookingTime());
         exemplaryDTO.setBookDTO(BookMapper.book2BookDTO(exemplary.getBook()));

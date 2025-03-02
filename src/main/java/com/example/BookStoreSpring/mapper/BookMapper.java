@@ -1,14 +1,14 @@
 package com.example.BookStoreSpring.mapper;
 
 import com.example.BookStoreSpring.entities.Book;
-import com.example.BookStoreSpring.dto.BookDTO;
+import com.example.BookStoreSpring.entitiesDTO.BookDTO;
 
 public class BookMapper {
     public static Book bookDTO2Book(BookDTO bookDTO) {
         Book book = new Book();
 
-        book.setId(bookDTO.getId());
-        book.setIsbn(bookDTO.getIsbn());
+        book.setID(bookDTO.getID());
+        book.setISBN(bookDTO.getISBN());
         book.setTitle(bookDTO.getTitle());
         book.setAuthor(bookDTO.getAuthor());
         book.setCategory(bookDTO.getCategory());
@@ -26,8 +26,8 @@ public class BookMapper {
     public static BookDTO book2BookDTO(Book book) {
         BookDTO bookDTO = new BookDTO();
 
-        bookDTO.setId(book.getId());
-        bookDTO.setIsbn(book.getIsbn());
+        bookDTO.setID(book.getID());
+        bookDTO.setISBN(book.getISBN());
         bookDTO.setTitle(book.getTitle());
         bookDTO.setAuthor(book.getAuthor());
         bookDTO.setCategory(book.getCategory());
