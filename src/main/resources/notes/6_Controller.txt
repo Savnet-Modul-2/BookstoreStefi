@@ -1,0 +1,39 @@
+Controller
+
+Imported classes:
+1. ResponseEntity<T> - wraps the status code and response body into a single HTTP response;
+
+Annotations:
+@Controller - marks the Java class as a Controller;
+@RestController - marks the Java class as a Rest Controller;
+
+Adjacent annotations:
+@Autowired - used to mark a field for a dependency injection;
+@RequestMapping(path = "/entities") - used in order to map the HTTP path;
+@PostMapping(path = "/post") - used in order to mark methods that handle POST requests;
+@GetMapping(path = "/get") - used in order to mark methods that handle GET requests;
+@PutMapping(path = "/put") - used in order to mark methods that handle PUT requests;
+@DeleteMapping(path = "/delete") - used in order to mark methods that handle DELETE requests;
+@PathVariable(value = "variableName") - used in order to mark path segments to method parameters;
+@RequestParam(required = true) - user in order to bind query parameters to method parameters;
+@RequestBody - used in order to parse a JSON body into a Data Transfer Object;
+
+Definition:
+A Controller is a Java class that handles HTTP requests and returns responses.
+
+OBS!!! A Controller is the entry point of the Java Spring Application.
+It is the interface between the client (Browser, Postman, Frontend) and the backend logic.
+
+Used in order to:
+1. Handle HTTP requests.
+2. Route HTTP requests to the appropriate Service methods.
+3. Send HTTP responses.
+4. Parse input (@PathVariable, @RequestParam, @RequestBody)
+5. Return output (messages, HTTP status codes, DTOs)
+
+Best practices:
+1. Use @RestController when building a REST API as it combines @Controller and @ResponseBody.
+2. Use @RequestMapping in order to map the HTTP path.
+3. Keep the Controller thin by delegating logic to the Service layer.
+4. Handle exceptions and validations.
+5. Returns DTOs instead of Entities.

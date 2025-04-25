@@ -1,0 +1,21 @@
+Service
+
+Annotation:
+@Service - marks the Java class as a Service;
+
+Adjacent annotations:
+@Autowired - used to mark a field for a dependency injection;
+
+Definition:
+A Service is a Java class that contains the business logic of a Java Spring Application.
+
+Used in order to:
+1. Encapsulate the business logic.
+2. Reuse logic across multiple endpoints.
+3. Make the project more maintainable and testable.
+4. Keep Controllers focused on handling web requests.
+
+Best practices:
+1. Keep the logic focused
+    - respect the SOLID principles;
+2. Inject dependencies like Repositories or other Services via a constructor injection.

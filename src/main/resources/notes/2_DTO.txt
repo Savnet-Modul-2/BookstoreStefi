@@ -1,0 +1,34 @@
+Data Transfer Object - DTO
+
+Definition:
+A Data Transfer Object (DTO) is a plain Java Object (POJO) that is used in order to transfer data between different layers of a
+Java Spring Application.
+
+OBS!!! A Data Transfer Object (DTO) is most often used in order to transfer data between the Controller layer and the
+Service layer.
+
+Characteristics:
+1. It is not an Entity but a separate object that helps to filter, shape and transfer data.
+2. It contains fields, getters and setters and methods with simple logic.
+3. It does not contain business logic.
+
+Used in order to:
+1. Control data exposure
+    - an Entity can contain sensitive or unnecessary information;
+2. Shape data for specific use cases
+    - depending on the task, one may only need some of the fields from an Entity or a
+      combination of data from multiple Entities;
+3. Improve security and reduce payload size in the API.
+4. Receive user input safely.
+
+Best Practices:
+1. Avoid complex logic in an Entity as its main purpose is to represent data.
+2. Never use business logic or service-layer behavior inside an Entity.
+3. Use a DTO inside a Controller, both for receiving input (@RequestBody) and sending output (@ResponseBody).
+4. Convert a DTO into an Entity
+    - manually, using a Constructor or Mapper;
+    - automatically, using a library such as MapStruct or ModelMapper;
+
+OBS!!! The difference between an Entity and a Data Transfer Object:
+Entity - database table representation;
+Data Transfer Object - plain Java object for sending and receiving data;

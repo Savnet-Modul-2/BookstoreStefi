@@ -1,0 +1,18 @@
+Exception Handling
+
+Imported classes:
+1. ResponseEntityExceptionHandler - the base class for centralized exception handling;
+
+Annotations:
+@ControllerAdvice - marks a class as a Global Exception Handler that will manage all exception thrown by the Controllers;
+@ExceptionHandler - specifies the type of exception a method handles;
+
+Implementation:
+1. Create the ErrorDetail class
+    1. Declare fields for the HTTP status code, error, error message and time stamp.
+    2. Define getters and setters for the fields.
+2. Create custom exception classes if needed
+    1. Each exception class must extend RuntimeException because the Global Exception Handler can only manage unchecked exceptions.
+3. Create the GlobalExceptionHandler class
+    1. Mark the class with the @ControllerAdvice annotation.
+    2. Mark the methods responsible for handling exceptions with the @ExceptionHandler annotation.

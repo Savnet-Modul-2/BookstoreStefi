@@ -1,0 +1,323 @@
+!atentie - la remove-uri setat tot ce trebuie cu null
+	 - de pus si addToList unde am liste (parintele de la one to many)
+	 - book 2 bookDTO - se pune id-ul
+	 - in dto se pune tot dto, nu entity
+	 - la mapper orice entity/mapper check if null inainte
+	 - grija la cascade Persistant cand dau save
+
+path param e in cale
+query param e cu ? tot in cale = request param
+better sa nu pun si in dto in parinte copii, doar in entity, chiar daca eu aveam workaround cu mapper-ul (in copil pun parintele)
+orphan removal
+cand relatia dintre parinte si copil nu mai exista sa se stearga copilul
+cascade delete e ca sterg parinte se sterge si copilul
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+    @PostMapping("/add/{libraryId}") //exemplary controller
+    public ResponseEntity<?> addBookToLibrary(@PathVariable(name = "libraryId") Long libraryId,
+                                              @RequestBody BookDTO bookDTO)
+
+    @GetMapping(path = "/{bookId}") //book controller
+    public ResponseEntity<?> findPaginated(@PathVariable(name = "bookId") Long bookId,
+                                           @RequestParam(required = false) Integer page,
+                                           @RequestParam(required = false) Integer size)
+
+    @GetMapping("/search") //book controller
+    public ResponseEntity<?> searchBooks(@RequestParam(required = false) String bookAuthor,
+                                         @RequestParam(required = false) String bookTitle,
+                                         @RequestParam(required = false) Integer page,
+                                         @RequestParam(required = false) Integer size) {
+        Page<Book> booksPage = bookService.searchBooks(bookAuthor, bookTitle, page, size);
+        Page<BookDTO> bookDTOPage = booksPage.map(BookMapper::book2BookDTOWithoutLibrary);
+
+        return ResponseEntity.ok(bookDTOPage);
+    }
+
+    @GetMapping("/library/{libraryId}")
+    public ResponseEntity<?> getReservationsForLibraryInInterval(
+	@PathVariable(name = "libraryId") Long libraryId, 
+	@RequestParam(required = false) Integer page, 
+	@RequestParam(required = false) Integer size,  
+	@Validated(AdvancedValidation.class)
+		@RequestBody ReservationSearchDTO reservationSearchDTO) {
+        Page<Reservation> reservations = reservationService.getReservationsForLibraryInInterval 						(libraryId, page, size, reservationSearchDTO);
+        List<Reservation> reservationList = reservations.getContent();
+        return ResponseEntity.ok(ReservationMapper
+		.reservationList2ReservationDTOList(reservationList));
+    }
+
+
+bookController - are findAll
+bookController - are chestia de search books cu filtrele de autor si titlu
+bookController - are remove from library
+exemplaryController - mapper pe paginat pentru o lista
+exemplaryController - remove exemplary (= delete) & removeExemplaryFromBook
+reservationController - filtre cu un nou DTO - reservationSearchDTO
+reservationController - primeste de la service un Page<Reservation>
+	Page<Reservation> reservations = reservationService.getReservationsForUserByStatus(userId,
+                page, size, reservationSearchDTO);
+        List<Reservation> reservationList = reservations.getContent();
+reservationController - change status pe rezervare
+
+
+cam la toate mapperele check de DTO.getSth != null
+bookMapper - are conversie de lista
+bookMapper - chestia cu with/without library
+exemplaryMapper - chestia cu stream la lista 
+librarianMapper - with/without library
+libraryMapper - with/without books
+reservationMapper - tot chestia cu lista
+userMapper - cel mai sec, nu ne mai uitam la el
+
+
+bookRepository - findAll & findBooks
+	       - paginat
+bookRepository - is null or
+bookRepository - like concat
+exemplaryRepository - findByBookId & deleteById & findFirstAvailableExemplary
+exemplaryRepository - the big shit - nativeQuery = true
+librarianRepository - findByEmail
+reservationRepository - findAllReservationsToBeCanceled & findAllReservationsToBeDelayed
+		& findReservationsForLibraryInInterval & findReservationsForUserByStatus
+		order by
+!reservationRepository - is null or cu cast
+		       - paginat
+userRepository - findByEmail
+
+
+exemplaryService - create lista de exemplare in for
+reservationService - daysBetween
+userService - elapsedTime in minutes
+
+
+dateOrderValidator - chestia aia sa accepte 2 clase
+ValidationOder - ala care seteaza ordinea - se pune la adnotari
+
+
+return ResponseEntity.noContent().build();
+return ResponseEntity.ok(ExemplaryMapper.exemplaryListToDTOList(createdExemplary));
+	BookDTO bookDTO = BookMapper.book2BookDTOWithoutLibrary(foundBook);
+return ResponseEntity.ok(bookDTO);
+
+
+@Transactional - cand am mai mult de un save
+@Async - EmailService
+@Enumerated(EnumType.STRING) - string in loc de int la enums
+@Valid - librarianDto - sa coboare in ierarhie cu validarile
+
+
+book - many to one - library
+book - one to many - exemplary
+exemplary - many to one - book
+exemplary - one to many - reservation
+librarian - one to one - join column - library
+library - one to many - book
+library - one to one - mappedBy (parinte) - librarian
+reservation - many to one - user
+reservation - many to one - exemplary
+user - one to many - reservations
+
+ 
+exemplary - @Version
+    @Column(name = "version")
+    private Integer version;
+	@Column(name = "update_time")
+    private LocalDateTime localDateTime;
+
+reservation - @Version
+    @Column(name = "version")
+    private Integer version;
+
+
+Validari:
+in controller @Validated(ValidationOrder.class) (vezi reservationController - create)
+	      @Validated(AdvancedValidation.class)
+in dto 
+ @ValidDateOrder(groups = AdvancedValidation.class)
+ public class ReservationDTO {
+     private Long id;
+     @NotNull(groups = BasicValidation.class)
+     @ValidStartDateInTheFuture(groups = AdvancedValidation.class)
+CevaValidator public class DateOrderValidator implements ConstraintValidator<ValidDateOrder, ReservationDTO>
+ValidCeva 
+
+
+@Scheduled(cron = "0 0 0 * * *") // every day at 00:00
+@Scheduled(cron = "*/50 * * * * *") //every 50 seconds
+@Scheduled(cron = "0 */50 * * * *") //every 50 minutes
+
+
+        second (0-59)
+        | minute (0-59)
+        | | hour (0-23)
+        | | | day of month (1-31)
+        | | | | month (1-12 or JAN-DEC)
+        | | | | | day of week (0-6 or SUN-SAT)
+        | | | | | |
+cron = "0 0 0 * * *" - specifies when a method must be triggered;
+
+Available attributes:
+1. targetIdentity() -> | @OneToOne | @OneToMany | @ManyToOne | @ManyToMany |
+2. cascade()        -> | @OneToOne | @OneToMany | @ManyToOne | @ManyToMany |
+3. fetch()          -> | @OneToOne | @OneToMany | @ManyToOne | @ManyToMany |
+4. optional()       -> | @OneToOne |            | @ManyToOne |             |
+5. mappedBy()       -> | @OneToOne | @OneToMany |            | @ManyToMany |
+6. orphanRemoval()  -> | @OneToOne | @OneToMany |            |             |
+
+
+         Book bookToRemove = user.getBooks().stream()
+                 .filter(book -> book.getId().equals(bookId))
+                 .findFirst()
+                 .orElseThrow(() -> new EntityNotFoundException("Book not found"));
+         user.getBooks().remove(bookToRemove);
+
+         List<Application> applications = userDTO.getApplications().stream()
+                 //.map(applicationDto -> ApplicationMapper.applicationDTO2Application(applicationDto))
+                 .map(ApplicationMapper::applicationDTO2Application)
+                 .toList();
+         user.setApplications(applications);
+
+        if (applicationDTO.getUsers() != null) {
+            application.setUsers(applicationDTO.getUsers().stream()
+                    .map(UserMapper::userDTO2UserWithoutApplications)
+                    .toList());
+        }
+
+
+Tema 5: https://github.com/owtlaw6/Java-Modul2/commit/526f48bbfe08e5d34e9cfd866984c5dc3099de36
+1. OneToMany
+  create parent with children (1)
+  create parent without children (1) 
+	//acest caz nu e un nou endpoint, ci, din Json (request body), nu pui lista de children
+  create children (2)
+  add existing child to parent (3)
+  create child with parent id as param (4)
+  delete parent should delete child (cascade type remove)
+  remove child from parent (test orphan removal)
+2. ManyToMany
+  create parent
+  create child
+  add child to parent
+
+
+
+    //book
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
+            fetch = FetchType.LAZY,
+            orphanRemoval = true,
+            mappedBy = "book")
+    private List<Exemplary> exemplaries = new ArrayList<>();
+
+    //exemplary
+    @ManyToOne
+    @JoinColumn(name = "book_id")
+    private Book book;
+
+
+User - owner -> has JoinColumn
+	avoid cascade.remove
+Application -> child
+
+     //application
+     @ManyToMany(mappedBy = "applications", fetch = FetchType.EAGER) 
+     private List<User> users;
+ 
+     //user
+     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
+     @JoinTable(name = "USER_APPLICATION", schema = "public",
+             joinColumns = @JoinColumn(name = "user_id", nullable = false),
+             inverseJoinColumns = @JoinColumn(name = "application_id", nullable = false))
+     private List<Application> applications = new ArrayList<>();
+
+
+Librarian - parent -> has JoinColumn
+	Define cascade
+Library - child
+
+    //librarian
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "library_id", referencedColumnName = "id")
+    private Library library;
+
+    //library
+    @OneToOne(mappedBy = "library")
+    private Librarian librarian;
+
+
+persist = save child when save parent
+
+
+
+SELECT * FROM public."user"
+SELECT * FROM public."book"
+SELECT * FROM public."exemplary"
+SELECT * FROM public."librarian"
+SELECT * FROM public."library"
+SELECT * FROM public."reservation"
+
+SELECT * FROM public."card"
+SELECT * FROM public."favourites_user_book"
+DROP TABLE favourites_user_book;
+
+ORDER BY id ASC 
+
+
+
+
+https://github.com/Savnet-Modul-2/BookstoreDiana/commit/e2d9bbe87a9caa2110211d4d8ad0a8a00412d965
+
+o tabela de favourites
+o sa fie intre o carte si un user
+un user poate avea oricate favourites
+o carte poate sa fie la favourites la oricati useri 
+=> many to many
+
+endpoints:
+DONE - add book to fav (/userId/bookId)
+
+DONE - remove book from fav (trebuie gandit cum vine cascade si orphan)
+
+DONE - filter from favourites (hint: cauti in tabela books - tii cont de faptul ca
+    trebuie sa fie cartea respectva si in favourites) by nrOfPages si interval de appearanceDate
+    (pui 2 date si verifici sa fie appearanceDate in intervalul ala)
+    - si paginat si nepaginat (cu optional)
+    - cu varianta de parametrii optionali in cale la endpoint
+
+DONE - filter from favourites ca mai sus, doar ca pentru un anumit user,
+    nu toate la gramada - cu un alt DTO (vezi ReservationSearchDTO)
+    - cu paginat optional
+
+DONE - vezi daca sunt necesare validari de date
+
+
+
+https://github.com/Savnet-Modul-2/BookstoreDiana/compare/main...pregatire-examen
+https://github.com/Savnet-Modul-2/BookstoreDiana/commit/8653300c685c05b53d5d40606e7e253f4d66d129
+
+tabela noua de card (card de biblioteca) pentru un user
+un user poate sa aiba un singur card - pe card pot sa fie asociate oricate biblioteci
+
+field-uri:
+
+DONE id
+DONE date of creation - sa fie cu now, nu setat de mana
+DONE owner name
+DONE owner - linked prin adnotari ;) - ceva relatie cu tabela user
+DONE zile de valabilitate (scrii tu de mana ceva numar doar ca sa fie)
+
+endpoints:
+
+DONE create card
+DONE print all cards
+DONE print all libraries for one card
+DONE add one library to an existing card
+DONE verifica daca a expirat cardul
+
+
+
+
+
+
+
