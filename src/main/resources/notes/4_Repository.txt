@@ -1,0 +1,21 @@
+Repository
+
+Annotation:
+@Repository - marks the interface as a Repository;
+
+Adjacent annotations:
+@Query - allows one to create custom HQL and SQL queries;
+       - used when method naming is not the appropriate choice;
+@Param - used alongside @Query in order to bind a method parameter to a named parameter inside a query;
+
+Definition:
+A Repository is an interface that contains all the data access logic for a specific Entity.
+
+Characteristics:
+1. It allows one to perform CRUD operations without having to write code or SQL queries.
+
+Used in order to:
+1. Interact with the database.
+2. Perform CRUD operations without writing code or SQL queries.
+3. Crete custom queries.
+4. Keep the data access layer separate from the business logic layer.

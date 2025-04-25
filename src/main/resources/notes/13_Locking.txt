@@ -1,0 +1,30 @@
+Pessimistic Locking - Assume conflict will happen and block others;
+
+Annotation:
+@Lock(LockModeType.PESSIMISTIC_WRITE) or Lock(LockModeType.PESSIMISTIC_READ)
+
+How to use:
+Can only be used to mark a method alongside a @Query annotation.
+The methods marked with the @Lock annotation must be Called in a Transactional Context.
+
+Called in a Transactional Context - called inside a method marked with the @Transactional annotation;
+
+Characteristics:
+- weaker performance;
+- the data is locked as soon as a transaction accesses it, before any changes are made;
+- other transactions are blocked from accessing the data until the lock is released;
+
+Optimistic Locking - Assume conflicts are rare so only check before committing the changes;
+
+Annotation:
+@Version
+
+How to use:
+Can only be used to mark a field inside an Entity.
+The Entity must be managed by JPA/Hibernate.
+
+Characteristics:
+- better performance;
+- the data is not locked when it is accessed;
+- when the data is updated, the system checks if someone else modified the data in the meantime;
+- if someone else modified the data in the meantime, throw an OptimisticLockException and force a retry;

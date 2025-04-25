@@ -1,0 +1,58 @@
+Table Relations
+
+Annotations:
+@OneToOne - specifies that one instance of an entity is associated with one instance of another entity;
+@OneToMany - specifies that one instance of an entity is associated with multiple instances of another entity;
+@ManyToOne - specifies that multiple instances of an entity are associated with one instance of another entity;
+@ManyToMany - specifies that multiple instances of an entity are associated with multiple instances of another entity;
+
+Adjacent annotations:
+@JoinColumn(name = "COLUMN")
+
+Common Pairs:
+@OneToOne <-> @OneToOne
+@OneToMany <-> @ManyToOne
+@ManyToOne <-> @OneToMany
+@ManyToMany <-> @ManyToMany
+
+Attributes:
+1. targetIdentity()
+    1. Specifies the class type of the related entity;
+    2. Only needed when working with generic classes and their type cannot be inferred automatically;
+2. cascade()
+    1. Specifies which operation should be propagated from the Parent Entity to the Child Entity
+        1. CascadeType.PERSIST - when the Parent is saved, the Child is also saved
+        2. CascadeType.REMOVE - when the Parent is removed, the Child is also removed
+        3. CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH, CascadeType.ALL - other options
+3. fetch()
+    1. Specifies how data is loaded
+        1. FetchType.EAGER - loads the related entity immediately
+        2. FetchType.LAZY - loads the related entity only when accessed
+4. optional()
+    1. Specifies whether the relation can be null
+        1. true - the relation is not required
+        2. false - the relation must exist
+5. mappedBy()
+    1. Used on the inverse (not-owning) side of a relation in order to specify the name of the field declared in the owning side.
+    2. Required in bidirectional relations.
+    3. Avoids creating duplicate columns.
+6. orphanRemoval()
+    1. Specifies whether the Children should be removed from the database when they are removed from the relation.
+
+Available attributes:
+1. targetIdentity() -> | @OneToOne | @OneToMany | @ManyToOne | @ManyToMany | cand o entitate isi formeaza o relatie cu alta entitate
+2. cascade()        -> | @OneToOne | @OneToMany | @ManyToOne | @ManyToMany | modificarile efect. asupra unei entitati se fac si pe cele aflate in relatie cu ea
+3. fetch()          -> | @OneToOne | @OneToMany | @ManyToOne | @ManyToMany | lazy - aduce datele dar nu aduce copii sau ce are in relatie cu ea, eager - aduce tot
+4. optional()       -> | @OneToOne |            | @ManyToOne |             | daca optional e true atunci cand creez o entitate obligatoriu creez si cealalta entitate
+5. mappedBy()       -> | @OneToOne | @OneToMany |            | @ManyToMany | specific owner-ul ( entitatea parinte). owner-ul se specifica pe inverse side ( exista owning side si invers side. owning side - owner, inverse side-copil)
+6. orphanRemoval()  -> | @OneToOne | @OneToMany |            |             | daca sterg parinte sterg si copil.
+
+OBS!!!
+@JoinCOlumn can be used in any unidirectional relation.
+@JoinCOlumn cannot be used in any bidirectional relation.
+	1. In case of a OneToMany <-> ManyToOne relation, the One side cannot use the JoinColumn
+
+OBS!!!
+When creating a OneToMany <-> ManyToOne bidirectional relation, make sure to use the "mappedBy" attribute inside the OneToMany annotation.
+Not doing so will cause pgAdming to create an additional table.
+That table's name will follow the structure Entity1_Entity2 and it will contain 2 columns: one for the Entity1 ID and one for the Entity2 ID.

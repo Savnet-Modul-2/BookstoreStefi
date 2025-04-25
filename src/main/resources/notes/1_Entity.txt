@@ -1,0 +1,33 @@
+Entity
+
+Annotation:
+@Entity - marks the class as an Entity;
+
+Adjacent annotations:
+@Table(name = "table") - specifies the name of the table inside the database;
+@Id - marks a field as the primary key;
+@GeneratedValue(strategy = GenerationType.IDENTITY) - allows the database to generate the primary key automatically;
+@Column(name = "column") - used in order to customize the column name, length, nullability, etc.
+@Enumerated(strategy = EnumerationType.STRING) - specifies the format in which the enum value should be displayed inside the table;
+@JoinColumn - specifies that a column from a table that must be added to another table;
+
+Definition:
+An Entity is a Java class that is mapped to a table inside a relational database.
+
+Characteristics:
+1. It is a Persistent Object:
+    - each instance of the class represents a row inside the table;
+    - each field of the class represents a column inside the table;
+2. It contains fields, getters and setters and methods with simple logic.
+3. It does not contain business logic.
+
+Used in order to:
+1. Use when one want to store, retrieve or manipulate data from a database inside a Java Spring Application.
+
+Best Practices:
+1. Default Constructor
+    - each Entity must have a constructor that takes no arguments as required by the JPA;
+    - thankfully, in Java, each class has a default constructor that takes no arguments;
+2. Avoid complex logic in an Entity as its main purpose is to represent data.
+3. Never use business logic or service-layer behavior inside an Entity.
+4. Override equals() and hashCode() with caution, usually based on the Entity ID.

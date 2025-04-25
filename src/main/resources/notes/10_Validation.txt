@@ -1,0 +1,53 @@
+Validation
+
+Dependency:
+implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+Annotations:
+@GroupSequence - specifies the order of validation groups;
+@Constraint - marks a custom annotation as a Validator;
+@Target - specifies the element type that the custom annotation can be applied to;
+@Retention - specifies how long the annotation is retained;
+@Validated - used on classes or method parameters in order to activate the Validation process;
+
+Imported Classes:
+ConstraintValidatorContext - allows one to interact with the validation engine and create custom error messages;
+
+Imported Interfaces:
+ConstraintValidator<A, T> - interface used in order to specify the Validator logic;
+
+Implementation:
+1. Create the BasicInformation Interface.
+2. Create the AdvancedInformation Interface.
+3. Create the ValidationOrder Interface
+    1. Use the @GroupSequence annotation -> @GroupSequence({BasicInformation.class, AdvancedInformation.class}) in order to specify the validation order
+4. Create a Custom Annotation -> ValidReservationDateOrder
+    1. Add an @ before the "interface" keyword.
+    2. Use the following annotations:
+        1. @Constraint(validatedBy = {ReservationDateOrderValidator.class}) -> specify the class which uses this annotation
+        2. @Target(value = ElementType.Type) -> specify the element that will be marked for validation using this annotation
+        3. @Retention(value = RUNTIME) -> specify how long the annotation will be retained
+    3. The interface must contain the following members:
+        1. String message() default "The start date must be before the end date.";
+        2. Class<? extends Payload>[] payload() default {};
+        3. Class<?>[] groups default {};
+5. Create a Validator class -> ReservationDateOrderValidator
+    1. Implement the ConstraintValidator<> Interface -> ConstraintValidator<ValidReservationDateOrder, ReservationDTO>
+    2. Override the initialize method -> public void initialize(ValidReservationDateOrder validReservationDateOrder)
+    3. Override the isValid method -> public boolean isValid(ReservationDTO reservationDTO, ConstraintValidatorContext context)
+6. Mark the Data Transfer Object class that must be validated ->
+    @ValidReservationDateOrder(groups = AdvancedInformation.class)
+    public class ReservationDTO
+7. Mark the parameter of that class type inside the Controller ->
+    @Validated(value = ValidationOrder.class) @RequestBody ReservationDTO reservationDTO
+
+OBS!!! Custom Validations can target:
+- Types;
+- Fields;
+- Methods;
+- Parameters;
+- Annotation Types;
+
+Differences:
+4.2.2. @Target(value = ElementType.FIELD)
+6. Mark the field that must be validated, located inside the Data Transfer Object.

@@ -1,0 +1,3 @@
+Annotation:
+@Transactional - ensures that a method runs withing a database transaction;
+               - if an exception occurs during the method call, the transaction is automatically rolled back;
