@@ -1,0 +1,19 @@
+Mapper
+
+Definition:
+A Mapper is a utility class that is used in order to convert between different types of objects.
+
+OBS!!! A Mapper is most often used in order to convert between Entities and Data Transfer Object.
+
+Characteristics:
+1. It contains static methods used to convert between different types of object.
+
+Used in order to:
+1. Maintain consistency
+    - ensure that object mapping is always done the same way;
+2. Centralize and reuse mapping logic
+    - avoid repeating conversions in multiple places;
+3. Keep separation of concerns
+    - prevent business logic (Service layer) and web logic (Controller layer) from getting cluttered with data
+      conversion code;
+

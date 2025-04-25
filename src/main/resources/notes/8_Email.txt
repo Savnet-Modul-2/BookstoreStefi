@@ -1,0 +1,17 @@
+Email
+
+Dependency:
+implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+Imported Classes:
+1. JavaMailSender
+    1. send(SimpleMailMessage email) - used in order to send emails;
+2. SimpleMailMessage
+    1. setFrom(String emailAddress) - used in order to specify the email sender;
+    2. setTo(String emailAddress) - used in order to specify the email recipient;
+    3. setSubject(String subject) - used in order to specify the email's subject (title);
+    4. setText(String text) - used in order to specify the email's text (body);
+
+Annotations:
+@Value("${spring.mail.username}") - used in order to retrieve the data stored in the specified ... within the project
+                                    and store it inside a field;

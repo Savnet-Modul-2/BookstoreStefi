@@ -1,0 +1,22 @@
+Threads
+
+Imported classes:
+1. AsyncConfigurer - interface used in order to define a custom executor for asynchronous methods annotated with @Async;
+    1. getAsyncExecutor() - getter that returns the custom executor used for running threads;
+2. ThreadPoolTaskExecutor - custom thread pool for asynchronous tasks;
+    1. setCorePoolSize() - sets the minimum number of threads that can run in parallel instantly;
+    2. setMaxPoolSize() - sets the maximul number of threads that can be created simultaneously;
+    3. setQueueCapacity() - sets the maximum number of threads that can wait in the queue while other threads are running;
+    4. initialize() - starts the executor;
+
+Annotations:
+@Configuration - marks a Java class as a source of Spring Bean definitions;
+@EnableASync - enables support for asynchronous methods annotated with @Async;
+@Async - marks a method as asynchronous; *
+
+Adjacent annotations:
+@Override - marks a method as overriding a method from a superclass or interface;
+
+Threads <=> Asynchronous tasks
+
+OBS!!! Elements marked with an * at the end are used inside service classes, not inside the Custom Executor Class (SpringAsyncConfig).
